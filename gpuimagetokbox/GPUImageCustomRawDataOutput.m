@@ -9,11 +9,11 @@
 #import "GPUImageCustomRawDataOutput.h"
 #import "TBExamplePublisher.h"
 
-static NSString* const kApiKey = @"";
+static NSString* const kApiKey = @"100";
 // Replace with your generated session ID
-static NSString* const kSessionId = @"";
+static NSString* const kSessionId = @"1_MX4xMDB-fjE0NTA0NTc4NTEzODZ-ZlhzaWh3TVk3WG10UE1zd3ZscWlyRmVIfn4";
 // Replace with your generated token
-static NSString* const kToken = @"";
+static NSString* const kToken = @"T1==cGFydG5lcl9pZD0xMDAmc2RrX3ZlcnNpb249dGJwaHAtdjAuOTEuMjAxMS0wNy0wNSZzaWc9NzQ5MzdiMzAyODllODYwOTU3NDAxYjg0N2EzODg4ZmMxOWJjMTQwMDpzZXNzaW9uX2lkPTFfTVg0eE1EQi1makUwTlRBME5UYzROVEV6T0RaLVpsaHphV2gzVFZrM1dHMTBVRTF6ZDNac2NXbHlSbVZJZm40JmNyZWF0ZV90aW1lPTE0NTA0NTYxODkmcm9sZT1tb2RlcmF0b3Imbm9uY2U9MTQ1MDQ1NjE4OS4xMDgxOTA0NjkzODYzJmV4cGlyZV90aW1lPTE0NTMwNDgxODk=";
 
 @interface GPUImageCustomRawDataOutput ()<OTSessionDelegate, OTPublisherDelegate>
 
@@ -270,19 +270,11 @@ didFailWithError:(OTError*)error
 - (BOOL)imageBufferIsSanitary:(CVImageBufferRef)imageBuffer
 {
     size_t planeCount = CVPixelBufferGetPlaneCount(imageBuffer);
-    // (Apple bug?) interleaved chroma plane measures in at half of actual size.
-    // No idea how many pixel formats this applys to, but we're specifically
-    // targeting 4:2:0 here, so there are some assuptions that must be made.
-    BOOL biplanar = (2 == planeCount);
     
     for (int i = 0; i < CVPixelBufferGetPlaneCount(imageBuffer); i++) {
         size_t imageWidth =
         CVPixelBufferGetWidthOfPlane(imageBuffer, i) *
         CVPixelBufferGetHeightOfPlane(imageBuffer, i);
-        
-        if (biplanar && 1 == i) {
-            imageWidth *= 2;
-        }
         
         size_t dataWidth =
         CVPixelBufferGetBytesPerRowOfPlane(imageBuffer, i) *
@@ -296,8 +288,7 @@ didFailWithError:(OTError*)error
         BOOL nextPlaneContiguous = YES;
         
         if (hasNextAddress) {
-            size_t planeLength =
-            dataWidth * CVPixelBufferGetHeightOfPlane(imageBuffer, i);
+            size_t planeLength = dataWidth;
             
             uint8_t* baseAddress =
             CVPixelBufferGetBaseAddressOfPlane(imageBuffer, i);
